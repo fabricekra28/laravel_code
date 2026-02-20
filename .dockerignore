@@ -1,0 +1,8 @@
+.env
+.git
+node_modules
+vendor
+tests
+Dockerfile
+docker-compose.yaml
+sonar-project.properties
