@@ -5,9 +5,8 @@ FROM composer:2 AS builder
 
 WORKDIR /app
 
-COPY composer.json composer.lock ./
+COPY . .
 
-# On ignore les extensions dans le builder
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -15,17 +14,12 @@ RUN composer install \
     --optimize-autoloader \
     --ignore-platform-reqs
 
-COPY . .
-
-RUN composer dump-autoload --optimize
-
 
 # =========================
 # 2️⃣ Runtime Stage
 # =========================
 FROM php:8.2-fpm-alpine
 
-# Installer dépendances runtime
 RUN apk add --no-cache \
     libpng \
     libzip \
@@ -45,13 +39,6 @@ RUN apk add --no-cache \
         gd \
         opcache
 
-# OPcache config
-RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.max_accelerated_files=10000" >> /usr/local/etc/php/conf.d/opcache.ini \
-    && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini
-
-# User non-root
 RUN addgroup -g 1000 laravel \
     && adduser -G laravel -u 1000 -D laravel
 
